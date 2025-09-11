@@ -70,3 +70,7 @@ amplifytools.xcconfig
 .amplify
 amplify_outputs*
 amplifyconfiguration*
+
+
+# Environment files
+.env
