@@ -1,0 +1,103 @@
+name: ilkkam
+description: "일감 프로젝트입니다."
+
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+version: 2.4.0+234
+
+environment:
+  sdk: ^3.5.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+  intl: ^0.19.0
+  flutter_svg: ^2.0.10+1
+  flutter_native_splash: ^2.4.1
+  shared_preferences: ^2.3.2
+  http: ^1.2.2
+  provider: ^6.1.2
+  dropdown_button2: ^2.3.9
+  dio: ^5.7.0
+  image_picker: ^1.1.2
+  flutter_dotenv: ^5.0.2
+  flutter_image_compress: ^2.3.0
+  image_cropper: ^8.0.2
+  firebase_core: ^3.6.0
+  firebase_storage: ^12.3.3
+  infinite_scroll_pagination: ^4.0.0
+  url_launcher: ^6.3.1
+  flutter_slidable: ^4.0.0
+  firebase_messaging: ^15.1.3
+  flutter_localization: ^0.3.1
+  cupertino_calendar_picker: ^2.0.0+1
+  bottom_picker: ^2.8.0
+  flutter_rating_stars: ^1.1.0
+  flutter_local_notifications: ^18.0.0
+  stomp_dart_client: ^2.1.0
+  package_info_plus: ^8.3.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+
+  flutter_lints: ^5.0.0
+  flutter_launcher_icons: ^0.13.1
+  riverpod_generator: ^2.4.3
+  build_runner: ^2.4.13
+  custom_lint: ^0.7.0
+  riverpod_lint: ^2.3.13
+
+
+flutter_native_splash:
+  android: true
+  ios: true
+  color: "#2E9AFD"
+  image_path: "assets/icon.jpg" # 너의 아이콘 경로
+
+flutter:
+
+  uses-material-design: true
+
+
+  assets:
+    - assets/common/
+    - assets/main/
+    - assets/splash_icon.png
+    - assets/community/
+    - assets/category/
+
+  fonts:
+    - family: Pretendard
+      fonts:
+        - asset: assets/fonts/Pretendard-Thin.ttf
+          weight: 100
+        - asset: assets/fonts/Pretendard-ExtraLight.ttf
+          weight: 200
+        - asset: assets/fonts/Pretendard-Light.ttf
+          weight: 300
+        - asset: assets/fonts/Pretendard-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Pretendard-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Pretendard-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Pretendard-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Pretendard-ExtraBold.ttf
+          weight: 800
+        - asset: assets/fonts/Pretendard-Black.ttf
+          weight: 900
+    - family: Cafe24
+      fonts:
+        - asset: assets/fonts/Cafe24Shiningstar-v2.0.ttf
+  #   - family: Trajan Pro
+  #     fonts:
+  #       - asset: fonts/TrajanPro.ttf
+  #       - asset: fonts/TrajanPro_Bold.ttf
+  #         weight: 700
+  #
+  # For details regarding fonts from package dependencies,
+  # see https://flutter.dev/to/font-from-package

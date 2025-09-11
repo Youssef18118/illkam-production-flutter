@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "788720126083",
+    "project_id": "illkam-b2e9e",
+    "storage_bucket": "illkam-b2e9e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:788720126083:android:0ec874be587babfd9bb3b6",
+        "android_client_info": {
+          "package_name": "com.cleansolution.illkam"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAP0DjlSpIR_aMgBRZy0kYTwhMVdDPYX2Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
