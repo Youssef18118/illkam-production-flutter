@@ -48,7 +48,7 @@ class _CommonUserPageState extends State<CommonUserPage> {
         backgroundColor: Colors.white,
         scrolledUnderElevation: 0,
       ),
-      body: user == null? CircularProgressIndicator() : SingleChildScrollView(child: Column(
+      body: user == null? Center(child: CircularProgressIndicator(color: Colors.brown,)) : SingleChildScrollView(child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           _title(user!, user?.id ?? -1),

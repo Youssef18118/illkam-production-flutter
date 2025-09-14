@@ -84,9 +84,9 @@ class ChatsRepository {
   }
 
   Future<void> sendMessage(String roomId, String text, String senderId,
-      int receiverId, String receiverName,
+      int receiverId, String senderName,
       {String? imageURL}) async {
-    fcmRepository.sendFCM("${receiverName} : ${text}", receiverId, roomId);
+    fcmRepository.sendFCM("${senderName} : ${text}", receiverId, roomId);
   }
 
   Future<List<ChatMessage>> getPastMessages(String roomId, {int page = 0}) async {

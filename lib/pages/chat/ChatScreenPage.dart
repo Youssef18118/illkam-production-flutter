@@ -14,6 +14,7 @@ import 'package:ilkkam/widgets/ChatSummary.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:stomp_dart_client/stomp_dart_client.dart';
+import 'package:ilkkam/apis/usersAPI.dart';
 
 import '../../utils/ImageDialog.dart';
 import '../CommonUserPage.dart';
@@ -263,13 +264,20 @@ class _ChatScreenState extends State<ChatScreen> {
                 senderId: userid.toString(),
                 receiverId: chatP.selectedChatsOpId ?? -1,
                 // onSend: _scrollToBottom,
-                sendMessage: (String? val) {
+                sendMessage: (String? val) async {
                   int? receiverId = chat.employerId == userid
                       ? chat.employeeId
                       : chat.employerId;
                   String? receiverName = chat.employerId == userid
                       ? chat.employeeName
                       : chat.employerName;
+                  
+                  String? senderName = nickname;
+                  if (senderName == null || senderName.isEmpty) {
+                    final user = await UsersService().getUserInfo(userid);
+                    senderName = user?.name;
+                  }
+
                   stompClient.send(
                       destination: '/pub/message', // 전송할 destination
                       body: jsonEncode(ChatMessage(
@@ -283,7 +291,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   );
 
                   chatsRepository.sendMessage(
-                      chat.id ?? '', val?? '', userid.toString(), receiverId ?? -1, receiverName?? '');
+                      chat.id ?? '', val?? '', userid.toString(), receiverId ?? -1, senderName ?? '');
                   Provider.of<ChatsController>(context, listen: false)
                       .setLastChat(chat.id ?? '', val ?? '');
                   chatP

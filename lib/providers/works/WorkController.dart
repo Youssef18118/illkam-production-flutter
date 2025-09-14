@@ -21,6 +21,8 @@ class WorkController with ChangeNotifier {
   bool canApply = true;
   BaseAPI baseAPI = BaseAPI();
 
+  bool isMainLoading = false;
+
   List<Work> myEmployerWork = [];
   List<Work> myEmployeeWork = [];
   List<Work> myWorks = [];
@@ -34,8 +36,11 @@ class WorkController with ChangeNotifier {
   // This prevents the same controller from being attached to multiple scroll views
   ScrollController get workListPageScrollC => ScrollController();
 
-  scrollUpLandingPage(){
-    landingPageScrollC.animateTo(0, duration: Duration(milliseconds: 300), curve: Curves.easeInOut);
+  Future<void> scrollUpLandingPage() async {
+    if (landingPageScrollC.hasClients) {
+      await landingPageScrollC.animateTo(0,
+          duration: Duration(milliseconds: 300), curve: Curves.easeInOut);
+    }
   }
 
   // 일깜 더보기 페이지
@@ -98,9 +103,9 @@ class WorkController with ChangeNotifier {
     notifyListeners();
   }
 
-  reload() {
-    fetchWorkSummary();
-    fetchRecents();
+  reload() async {
+    await fetchWorkSummary();
+    await fetchRecents();
 
     notifyListeners();
   }
@@ -177,25 +182,31 @@ class WorkController with ChangeNotifier {
     notifyListeners();
   }
 
-  onClickBtmIllkam() {
+  onClickBtmIllkam() async {
+    isMainLoading = true;
+    notifyListeners();
     try {
-      if(landingPageScrollC.offset > 0){
-        scrollUpLandingPage();
-      } else {
-        _resetFiltersAndScroll();
-      }
+      await Future.wait([
+        scrollUpLandingPage(),
+        _resetFiltersAndScroll(),
+      ]);
     } catch (e) {
-      // If scroll controller fails, just reset filters
-      _resetFiltersAndScroll();
+      log("Error on onClickBtmIllkam $e");
+    } finally {
+      isMainLoading = false;
+      notifyListeners();
     }
   }
 
-  _resetFiltersAndScroll() {
-    dayListWidgetScrollController?.animateTo(0, duration: Duration(milliseconds: 300), curve: Curves.easeIn);
+  Future<void> _resetFiltersAndScroll() async {
+    if (dayListWidgetScrollController?.hasClients ?? false) {
+      await dayListWidgetScrollController?.animateTo(0,
+          duration: Duration(milliseconds: 300), curve: Curves.easeIn);
+    }
     selectedProvince = null;
     selectedWorkDetailType = null;
     selectedWorkType = null;
-    reload();
+    await reload();
   }
 
   Future reloadWorkList({int? reqPage}) async {

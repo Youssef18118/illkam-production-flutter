@@ -174,8 +174,7 @@ class _MainHomePageState extends State<MainHomePage> {
                           //     child: )
                         ],
                       ),
-                    ))),
-          ),
+                    )))),
           Positioned(
               right: 16,
               bottom: 100,
@@ -240,7 +239,35 @@ class _MainHomePageState extends State<MainHomePage> {
                     ),
                   ),
                 ],
-              ))
+              )),
+          if (work.isMainLoading)
+            Container(
+              color: Colors.transparent,
+              child: Center(
+                child: Container(
+                  width: 50,
+                  height: 50,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.2),
+                        spreadRadius: 1,
+                        blurRadius: 5,
+                        offset: Offset(0, 1), // changes position of shadow
+                      ),
+                    ],
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: CircularProgressIndicator(
+                      color: Colors.brown,
+                    ),
+                  ),
+                ),
+              ),
+            ),
         ],
       ),
     );
