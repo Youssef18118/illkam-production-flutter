@@ -2,7 +2,7 @@ name: ilkkam
 description: "일감 프로젝트입니다."
 
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
-version: 2.4.0+234
+version: 2.4.1+235
 
 environment:
   sdk: ^3.5.0
