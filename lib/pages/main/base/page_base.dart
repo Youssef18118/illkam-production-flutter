@@ -40,7 +40,7 @@ abstract class PageContainerBase extends StatelessWidget {
               ),
               background,
               Scaffold(
-                resizeToAvoidBottomInset: true,
+                resizeToAvoidBottomInset: false,
                 appBar: useAppbar ? appbar : null,
                 backgroundColor: backgroundColor,
                 body: SafeArea(child: body),

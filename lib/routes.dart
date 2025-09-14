@@ -21,8 +21,9 @@ import 'package:ilkkam/pages/myPage/MyWorkList.dart';
 import 'package:ilkkam/pages/myPage/ProfileEditPage.dart';
 import 'package:ilkkam/pages/register/LandingPage.dart';
 import 'package:ilkkam/pages/register/RegisterInfoInputPage.dart';
-import 'package:ilkkam/pages/consent/ConsentPage.dart';
 import 'package:ilkkam/pages/tabContainer.dart';
+import 'package:ilkkam/pages/consent/ConsentPage.dart';
+
 
 import 'pages/community/CommuEditPage.dart';
 
@@ -33,6 +34,7 @@ class Routes {
       LandingPage.routeName: (context) => LandingPage(),
       RegisterInfoInputPage.routeName: (context) => RegisterInfoInputPage(),
       ConsentPage.routeName: (context) => ConsentPage(),
+
       TabContainer.routeName: (context) => TabContainer(),
       // 유저 정보 페이지
       CommonUserPage.routeName : (context) => CommonUserPage(),

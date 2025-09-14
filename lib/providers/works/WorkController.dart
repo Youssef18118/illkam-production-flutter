@@ -11,14 +11,14 @@ import 'package:ilkkam/providers/works/Works.dart';
 import 'package:ilkkam/providers/works/dto/WorksSummaryDto.dart';
 import 'package:intl/intl.dart';
 
-// final GlobalKey<RefreshIndicatorState> landingRefreshKey = GlobalKey<RefreshIndicatorState>();
+// Removed global landingRefreshKey - now using local keys in each page
 
-class WorkController extends ChangeNotifier {
+class WorkController with ChangeNotifier {
+  WorkRepository workRepository = WorkRepository();
   Work? selectedWork;
 
   // workDetailPage
   bool canApply = true;
-  WorkRepository workRepository = WorkRepository();
   BaseAPI baseAPI = BaseAPI();
 
   List<Work> myEmployerWork = [];
@@ -29,18 +29,13 @@ class WorkController extends ChangeNotifier {
 
   // 일깜 메인 화면 페이지
   List<Work> recentWorks = [];
-  // ScrollController landingPageScrollC = ScrollController();
-  // ScrollController workListPageScrollC = ScrollController();
-  ScrollController? landingPageScrollC;
-  ScrollController? workListPageScrollC;
+  ScrollController landingPageScrollC = ScrollController();
+  // Changed to a getter method that returns a new ScrollController each time it's accessed
+  // This prevents the same controller from being attached to multiple scroll views
+  ScrollController get workListPageScrollC => ScrollController();
 
-  // scrollUpLandingPage(){
-  //   landingPageScrollC.animateTo(0, duration: Duration(milliseconds: 300), curve: Curves.easeInOut);
-  // }
-  
   scrollUpLandingPage(){
-    // Add a null check for safety
-    landingPageScrollC?.animateTo(0, duration: Duration(milliseconds: 300), curve: Curves.easeInOut);
+    landingPageScrollC.animateTo(0, duration: Duration(milliseconds: 300), curve: Curves.easeInOut);
   }
 
   // 일깜 더보기 페이지
@@ -183,11 +178,20 @@ class WorkController extends ChangeNotifier {
   }
 
   onClickBtmIllkam() {
-    // Simple fallback - just reset filters without checking scroll position
-    dayListWidgetScrollController?.animateTo(0, 
-        duration: Duration(milliseconds: 300), 
-        curve: Curves.easeIn);
+    try {
+      if(landingPageScrollC.offset > 0){
+        scrollUpLandingPage();
+      } else {
+        _resetFiltersAndScroll();
+      }
+    } catch (e) {
+      // If scroll controller fails, just reset filters
+      _resetFiltersAndScroll();
+    }
+  }
 
+  _resetFiltersAndScroll() {
+    dayListWidgetScrollController?.animateTo(0, duration: Duration(milliseconds: 300), curve: Curves.easeIn);
     selectedProvince = null;
     selectedWorkDetailType = null;
     selectedWorkType = null;
@@ -266,19 +270,40 @@ class WorkController extends ChangeNotifier {
 
   bool isDetailPageLoading = false;
 
-  routeToWorkDetailpage(BuildContext context, int workId)async{
+  routeToWorkDetailpage(BuildContext context, int workId) async {
     isDetailPageLoading = true;
-    selectedWork = Work(id: workId);
     notifyListeners();
-    Navigator.of(context).pushNamed(WorkDetailPage.routeName);
-    await fetchWorkDetailInfoAndGetCanApply();
+
+    bool success = await fetchWorkDetailInfoAndGetCanApply(workId);
     isDetailPageLoading = false;
+    notifyListeners();
+
+    if (success) {
+      Navigator.of(context).pushNamed(WorkDetailPage.routeName);
+    } else {
+      showDialog(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          title: const Text('오류'),
+          content: const Text('일감 정보를 가져오는 데 실패했습니다.'),
+          actions: [
+            TextButton(
+              child: const Text('확인'),
+              onPressed: () => Navigator.of(dialogContext).pop(),
+            ),
+          ],
+        ),
+      );
+    }
   }
 
-  fetchWorkDetailInfoAndGetCanApply() async {
+  Future<bool> fetchWorkDetailInfoAndGetCanApply(int workId) async {
     canApply = true;
     initCanApply();
-    Work cwork = await workRepository.getWork(selectedWork?.id ?? -1);
+    Work? cwork = await workRepository.getWork(workId);
+    if (cwork == null) {
+      return false;
+    }
     int? userid = await baseAPI.getJWT();
     selectedWork = cwork;
     // 날짜가 지난 경우
@@ -300,6 +325,7 @@ class WorkController extends ChangeNotifier {
     }
 
     notifyListeners();
+    return true;
   }
 
   initCanApply() {
@@ -310,18 +336,19 @@ class WorkController extends ChangeNotifier {
       int? targetId) async {
     await workRepository.reviewWork(
         content, starCount, imageURL, work_id ?? -1, targetId ?? -1);
-    fetchWorkDetailInfoAndGetCanApply();
+    fetchWorkDetailInfoAndGetCanApply(work_id ?? selectedWork?.id ?? -1);
     initCanApply();
   }
   editReview(String content, int starCount, String? imageURL, int? reviewID,
       ) async {
     await workRepository.editWork(
         content, starCount, imageURL, reviewID ?? -1);
-    fetchWorkDetailInfoAndGetCanApply();
+    fetchWorkDetailInfoAndGetCanApply(selectedWork?.id ?? -1);
     initCanApply();
   }
 
   removeReview(int reviewId) async {
     await workRepository.removeReview(reviewId);
+    fetchWorkDetailInfoAndGetCanApply(selectedWork?.id ?? -1);
   }
 }

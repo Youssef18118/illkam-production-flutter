@@ -34,42 +34,29 @@ class UserController with ChangeNotifier {
 
     notifyListeners();
   }
-  // void setUserId(int? user){
-  //   if(int != null){
-  //     _userId = user!;
-  //   }
-  // }
-
   void setUserId(int? user){
-    if (user != null) {
+    if(user != null){
       _userId = user;
     }
   }
 
-  // Future<int?> initialize()async {
-  //   int? jwt = await baseAPI.getJWT();
-  //   print(jwt);
-  //   if(jwt!= null){
-  //     me = await  usersService.getUserData();
-  //   }
-  //   _userId = jwt ?? -1;
-  //   notifyListeners();
-  //   return jwt;
-  // }
   Future<int?> initialize()async {
     int? jwt = await baseAPI.getJWT();
     print(jwt);
-    if (jwt != null) {
-      // It's safer to also wrap this in a try-catch block in case of token expiration
-      try {
-        me = await usersService.getUserData();
-      } catch (e) {
-        print("Failed to get user data, token might be expired: $e");
-        // Handle token expiration if needed, e.g., logout user
-      }
+    if(jwt!= null){
+      me = await  usersService.getUserData();
     }
     _userId = jwt ?? -1;
+    isLogIn = jwt != null;
     notifyListeners();
     return jwt;
+  }
+
+  Future<void> signOut() async {
+    _userId = -1;
+    isLogIn = false;
+    me = null;
+    await baseAPI.clearAllSharedPref();
+    notifyListeners();
   }
 }

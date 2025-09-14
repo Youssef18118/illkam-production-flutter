@@ -20,7 +20,7 @@ class _MyApplyWorkListState extends State<MyApplyWorkList> with SingleTickerProv
 
   @override
   void initState() {
-    Provider.of<ChatsController>(context, listen: false).initialize(context);
+    Provider.of<ChatsController>(context, listen: false).initialize();
     tabController = TabController(length: 2, vsync: this);
     tabController.addListener(() {
       setState(() {});

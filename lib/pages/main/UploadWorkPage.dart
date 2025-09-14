@@ -106,9 +106,13 @@ class _UploadWorkPageState extends State<UploadWorkPage> {
 
   @override
   void initState() {
-    workRepository.getAllWorkType().then((v) => setState(() {
+    workRepository.getAllWorkType().then((v) {
+      if (mounted) {
+        setState(() {
           workTypes = v;
-        }));
+        });
+      }
+    });
     // TODO: implement initState
     super.initState();
   }
@@ -133,6 +137,7 @@ class _UploadWorkPageState extends State<UploadWorkPage> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 IkDatePicker(
+                  required: true,
                   format: 'yyyy년 MM월 dd일',
                   label: "날짜",
                   onTap: () async {
@@ -158,6 +163,7 @@ class _UploadWorkPageState extends State<UploadWorkPage> {
                   height: 20,
                 ),
                 IkDatePicker(
+                  required: true,
                   label: "시간",
                   noMatter: noMatterTime,
                   noMatterChange: changeNoMatterTime,
@@ -184,6 +190,7 @@ class _UploadWorkPageState extends State<UploadWorkPage> {
                   height: 20,
                 ),
                 IKPlaceSelector(
+                  required: true,
                   selectedProvince: selectedProvince,
                   selectedCity: selectedCity,
                   // selectedSubCity: selectedSubCity,
@@ -195,6 +202,7 @@ class _UploadWorkPageState extends State<UploadWorkPage> {
                   height: 20,
                 ),
                 IKWorkTypeSelector(
+                  required: true,
                   items: workTypes,
                   mainType: selectedWorkType,
                   detailType: selectedWorkDetailType,
@@ -217,6 +225,7 @@ class _UploadWorkPageState extends State<UploadWorkPage> {
                           if (selectedWorkDetailType == "냉장고 청소" ||
                               selectedWorkDetailType == "세탁기 청소") {
                             return IKDropdownSelector(
+                                required: true,
                                 label: workInfo.name ?? '',
                                 selectedValue: workInfo.value,
                                 changeValue: (String newVal) {
@@ -236,6 +245,7 @@ class _UploadWorkPageState extends State<UploadWorkPage> {
                         } else {
                           //   나머지는 그냥 그대로
                           return IKDropdownSelector(
+                              required: true,
                               label: workInfo.name ?? '',
                               selectedValue: workInfo.value,
                               changeValue: (String newVal) {
@@ -247,6 +257,7 @@ class _UploadWorkPageState extends State<UploadWorkPage> {
                         }
                       } else {
                         return IkTextField(
+                          required: true,
                           keyboardType: workInfo.inputType == 'integer'
                               ? TextInputType.number
                               : TextInputType.text,
@@ -286,7 +297,14 @@ class _UploadWorkPageState extends State<UploadWorkPage> {
                     placeholder: "100,000",
                     formatters: [ThousandsFormatter()],
                     label: "금액(필수)",
+                    required: true,
                     keyboardType: TextInputType.number,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return "금액을 입력해주세요.";
+                      }
+                      return null;
+                    },
                     action: Text(
                       "원",
                       style: TextStyle(
@@ -302,7 +320,7 @@ class _UploadWorkPageState extends State<UploadWorkPage> {
                 ),
                 IkTextField(
                   controller: _commentC,
-                  placeholder: "시공 요구사항을 자세히 알려주세요\n\n※ 동의 없는 개인정보 입력 시 법적 책임이 따를 수 있습니다.",
+                  placeholder: "시공 요구사항을 자세히 알려주세요 \n\n ※ 동의 없는 개인정보 입력 시 법적 책임이 따를 수 있습니다.",
                   maxline: 5,
                   label: "고객 및 업체 요구사항(선택)",
                 ),
@@ -343,51 +361,55 @@ class _UploadWorkPageState extends State<UploadWorkPage> {
                 IKCommonBtn(
                     title: "등록하기",
                     onTap: () async {
-
                       if (_formKey.currentState?.validate() ?? false) {
-                        workInfoDetails.every((elem){
-                          print(elem.name);
-                          print(elem.value);
-                          return true;
-                        });
-                        print(!workInfoDetails.every((elem) =>
-                        elem.value != null && elem.value != ""));
-
-                        // 입력값 비었을 때
-                        if (
-                        // 가전청소 시 건조기 청소는 종류 무관
-                        selectedProvince == null ||
-                            selectedProvince == "시·도 선택" ||
-                            selectedCity == "시·군·구 선택" ||
-                            selectedCity == null ||
-                            selectedWorkType == null ||
-                            !workInfoDetails.every((elem) {
-                              if(elem.name == "종류" && selectedWorkDetailType == "건조기 청소"){
-                                return true;
-                              }else{
-                                return elem.value != null && elem.value != "";
-
-                              }
-
-                            })) {
-                          print('asdf');
+                        if (selectedProvince == null ||
+                            selectedProvince == "시·도 선택") {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text("지역(시·도)을 선택해주세요.")));
                           return;
                         }
-                        // 2차 입력값 필수일 때 입력 안 하면 안됨
-                        if((workTypes.firstWhere((elem)=> elem.name == selectedWorkType).workTypeDetails?.length ?? 0) > 0 &&
-                          selectedWorkDetailType == null
-                        ){
-                          print('fdsa');
+                        if (selectedCity == null || selectedCity == "시·군·구 선택") {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text("지역(시·군·구)을 선택해주세요.")));
+                          return;
+                        }
+                        if (selectedWorkType == null) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text("일깜유형을 선택해주세요.")));
                           return;
                         }
 
+                        final selectedWorkTypeData = workTypes.firstWhere(
+                            (e) => e.name == selectedWorkType,
+                            orElse: () => WorkTypes());
+                        if ((selectedWorkTypeData.workTypeDetails?.length ?? 0) >
+                                0 &&
+                            selectedWorkDetailType == null) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text("일깜유형(2차)을 선택해주세요.")));
+                          return;
+                        }
+
+                        final emptyWorkInfo = workInfoDetails.firstWhere(
+                            (elem) {
+                          if (elem.name == "종류" &&
+                              selectedWorkDetailType == "건조기 청소") {
+                            return false;
+                          }
+                          return elem.value == null || elem.value!.isEmpty;
+                        }, orElse: () => WorkInfoDetail());
+
+                        if (emptyWorkInfo.name != null) {
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              content: Text("${emptyWorkInfo.name}을(를) 입력해주세요.")));
+                          return;
+                        }
 
                         if (isUploading) {
                           return;
                         }
                         try {
                           isUploading = true;
-                          print('adsf');
 
                           await workRepository.saveWork(
                               workDate:
@@ -400,7 +422,7 @@ class _UploadWorkPageState extends State<UploadWorkPage> {
                               workType: selectedWorkType ?? '',
                               workTypeDetail: selectedWorkDetailType ?? '',
                               workInfoDetail: workInfoDetails,
-                              price: _priceC.text == "" ? "0" : _priceC.text,
+                              price: _priceC.text.isEmpty ? "0" : _priceC.text,
                               workImages: imageURLs,
                               comment: _commentC.text);
                           work.reload();

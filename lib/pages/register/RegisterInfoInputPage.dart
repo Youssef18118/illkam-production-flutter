@@ -36,6 +36,7 @@ class _RegisterInfoInputPageState extends State<RegisterInfoInputPage> {
   List<String> imageURLs = [];
   UsersService usersService = UsersService();
   bool isImageUploading = false;
+  bool _imagePickerHasError = false;
 
   final _formKey = GlobalKey<FormState>();
   @override
@@ -64,6 +65,7 @@ class _RegisterInfoInputPageState extends State<RegisterInfoInputPage> {
                   label: "이메일 주소 (필수)",
                   controller: emailC,
                   formatters: [EmailFormatter()],
+                  required: true,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return '이메일 주소를 입력해주세요.';
@@ -81,6 +83,7 @@ class _RegisterInfoInputPageState extends State<RegisterInfoInputPage> {
                   keyboardType: TextInputType.visiblePassword,
                   controller: passwordC,
                   formatters: [EmailFormatter()],
+                  required: true,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return '비밀번호를 입력해주세요.';
@@ -100,6 +103,7 @@ class _RegisterInfoInputPageState extends State<RegisterInfoInputPage> {
                   label: "비밀번호 확인 (필수)",
                   controller: passwordCheckC,
                   formatters: [EmailFormatter()],
+                  required: true,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return '비밀번호 확인을 입력해주세요.';
@@ -117,6 +121,7 @@ class _RegisterInfoInputPageState extends State<RegisterInfoInputPage> {
                   placeholder: "예시) 클린솔루션",
                   label: "상호/이름 (필수)",
                   controller: nameC,
+                  required: true,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return '상호/이름을 입력해주세요.';
@@ -142,6 +147,7 @@ class _RegisterInfoInputPageState extends State<RegisterInfoInputPage> {
                   label: "전화번호 (필수)",
                   controller: phoneC,
                   formatters: [PhoneNumberFormatter()],
+                  required: true,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return '전화번호를 입력해주세요.';
@@ -157,6 +163,7 @@ class _RegisterInfoInputPageState extends State<RegisterInfoInputPage> {
                   placeholder: "사업자 주소를 입력해주세요.",
                   label: "사업자 주소 (필수)",
                   controller: businessAddC,
+                  required: true,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return '사업자 주소를 입력해주세요.';
@@ -170,15 +177,19 @@ class _RegisterInfoInputPageState extends State<RegisterInfoInputPage> {
                 ImagePickerWidget(
                   label: "사업자 등록증 또는 명함 (필수)",
                   length: 1,
+                  required: true,
+                  hasError: _imagePickerHasError,
                   onDelete: (int idx){
                     setState(() {
                       imageURLs = [];
+                      _imagePickerHasError = true;
                     });
                   },
                   count: imageURLs.length,
                   onTap: () async {
                     setState(() {
                       isImageUploading = true;
+                      _imagePickerHasError = false;
                     });
                     String? imgURL = await pickImage(PickUsageType.PROFILE);
                     if (imgURL != null) {
@@ -204,7 +215,12 @@ class _RegisterInfoInputPageState extends State<RegisterInfoInputPage> {
                     title: "등록하기",
                     onTap: () async {
                       try {
-                        if(_formKey.currentState?.validate() ?? false){
+                        if(imageURLs.isEmpty){
+                          setState(() {
+                            _imagePickerHasError = true;
+                          });
+                        }
+                        if((_formKey.currentState?.validate() ?? false) && imageURLs.isNotEmpty){
                           UserSaveReq req = UserSaveReq(
                               name: nameC.value.text,
                               businessAddress: businessAddC.value.text,
@@ -214,10 +230,15 @@ class _RegisterInfoInputPageState extends State<RegisterInfoInputPage> {
                               phoneNumber: phoneC.value.text,
                               businessCertification: imageURLs[0]
                           );
-                          int userId = await usersService.register(req);
+                          int? userId = await usersService.register(req);
+                          print('User registered with ID: $userId');
                           final prefs = await SharedPreferences.getInstance();
                           bool marketingConsent = prefs.getBool('marketingConsent') ?? false;
-                          await usersService.setMarketingConsent(userId, marketingConsent);
+                          print('Retrieved marketing consent from SharedPreferences: $marketingConsent');
+                          await usersService.setMarketingConsent(userId!, marketingConsent);
+                          bool orderConsent = prefs.getBool('orderConsent') ?? false;
+                          print('Retrieved order consent from SharedPreferences: $orderConsent');
+                          await usersService.setOrderConsent(userId, orderConsent);
                           Navigator.popAndPushNamed(context, "/main");
                           user.setLogin(true);
                           _firebaseMessaging.getToken().then((String? token) async {

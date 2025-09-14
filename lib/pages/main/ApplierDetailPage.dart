@@ -102,7 +102,7 @@ class _ApplierDetailPageState extends State<ApplierDetailPage> {
                                     ap.selectedApply?.id ?? -1,
                                     APPLY_STATUS.confirm);
                                 // 디테일 화면 정보 수정
-                                await workC.fetchWorkDetailInfoAndGetCanApply();
+                                await workC.fetchWorkDetailInfoAndGetCanApply(workC.selectedWork?.id ?? -1);
                                 // 일깜 등록한 기록 수정
                                 await workC.fetchMyEmployerWork();
                                 // 일깜 메인화면 수정
@@ -135,7 +135,7 @@ class _ApplierDetailPageState extends State<ApplierDetailPage> {
                         onTap: () async {
                           await appliesRepository.updateStatus(
                               ap.selectedApply?.id ?? -1, APPLY_STATUS.cancel);
-                          await workC.fetchWorkDetailInfoAndGetCanApply();
+                          await workC.fetchWorkDetailInfoAndGetCanApply(workC.selectedWork?.id ?? -1);
                           await workC.reload();
                           Navigator.pop(context);
                         },

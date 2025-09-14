@@ -22,34 +22,11 @@ class ChatsRepository {
     return resJson;
   }
 
-  // Future<List<Chats>> getApplyChats() async {
-  //   int userid = await baseAPI.getJWT() ?? 1;
-  //   print('채팅 employee 불러오기');
-  //   final resJson = await baseAPI.basicGet("chats/$userid/apply");
-  //   List<Chats> result = [];
-  //   resJson.forEach((v) {
-  //     result.add(new Chats.fromJson(v));
-  //   });
-
-  //   return result;
-  // }
-
   Future<List<Chats>> getApplyChats() async {
-    int? userid = await baseAPI.getJWT(); // Use nullable int?
-    // FIX 1: If there's no user ID, no chats can be fetched. Return an empty list.
-    if (userid == null) {
-      return [];
-    }
-    
+    int userid = await baseAPI.getJWT() ?? 1;
     print('채팅 employee 불러오기');
     final resJson = await baseAPI.basicGet("chats/$userid/apply");
     List<Chats> result = [];
-    
-    // FIX 2: Add a null check on the response.
-    if (resJson == null) {
-      return [];
-    }
-
     resJson.forEach((v) {
       result.add(new Chats.fromJson(v));
     });
@@ -57,33 +34,11 @@ class ChatsRepository {
     return result;
   }
 
-  // Future<List<Chats>> getRequestChat() async {
-  //   int userid = await baseAPI.getJWT() ?? 1;
-  //   print('채팅 employer 불러오기');
-  //   final resJson = await baseAPI.basicGet("chats/$userid/request");
-  //   List<Chats> result = [];
-  //   resJson.forEach((v) {
-  //     result.add(new Chats.fromJson(v));
-  //   });
-  //   return result;
-  // }
-
   Future<List<Chats>> getRequestChat() async {
-    int? userid = await baseAPI.getJWT(); // Use nullable int?
-    // FIX 1: If there's no user ID, no chats can be fetched. Return an empty list.
-    if (userid == null) {
-      return [];
-    }
-
+    int userid = await baseAPI.getJWT() ?? 1;
     print('채팅 employer 불러오기');
     final resJson = await baseAPI.basicGet("chats/$userid/request");
     List<Chats> result = [];
-
-    // FIX 2: Add a null check on the response. This is where the crash happened.
-    if (resJson == null) {
-      return [];
-    }
-    
     resJson.forEach((v) {
       result.add(new Chats.fromJson(v));
     });

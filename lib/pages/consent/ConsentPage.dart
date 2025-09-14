@@ -50,6 +50,9 @@ class _ConsentPageState extends State<ConsentPage> {
       if (title == '광고성 정보 수신 동의 (선택)') {
         _saveMarketingConsent(value ?? false);
       }
+      if (title == '오더 알림 수신 동의서 (선택)') {
+        _saveOrderConsent(value ?? false);
+      }
       // If any item is unchecked, the "all agreed" is false.
       // If all items are checked, "all agreed" is true.
       _allAgreed = _agreedStatus.values.every((v) => v);
@@ -61,7 +64,11 @@ class _ConsentPageState extends State<ConsentPage> {
     await prefs.setBool('marketingConsent', value);
   }
 
-  // MODIFIED: This function is now async to handle showing dialogs sequentially.
+  Future<void> _saveOrderConsent(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('orderConsent', value);
+  }
+
   Future<void> _onAllChecked(bool? value) async {
     final isCheckingAll = value ?? false;
 
@@ -72,9 +79,10 @@ class _ConsentPageState extends State<ConsentPage> {
     });
 
     // Save marketing consent when "Agree to All" is toggled
-    // FIX: Save marketing consent based on the actual marketing consent checkbox status
     final marketingConsentStatus = _agreedStatus['광고성 정보 수신 동의 (선택)'] ?? false;
     await _saveMarketingConsent(marketingConsentStatus);
+    final orderConsentStatus = _agreedStatus['오더 알림 수신 동의서 (선택)'] ?? false;
+    await _saveOrderConsent(orderConsentStatus);
 
     // If agreeing to all, show each consent dialog sequentially.
     if (isCheckingAll) {
@@ -124,7 +132,7 @@ class _ConsentPageState extends State<ConsentPage> {
                 .where((c) => !c.isMandatory)
                 .map((consent) => _buildAgreementTile(consent)),
             
-            const Spacer(),
+            const SizedBox(height: 24),
 
             // "Agree" Button
             _buildAgreeButton(allMandatoryAgreed),
@@ -155,7 +163,7 @@ class _ConsentPageState extends State<ConsentPage> {
 
   Widget _buildAgreementTile(ConsentModel consent) {
     return CheckboxListTile(
-      contentPadding: EdgeInsets.zero, // Removes default horizontal padding
+      contentPadding: EdgeInsets.zero, 
       title: Text(consent.title, style: TextStyle(color: Colors.grey[700])),
       value: _agreedStatus[consent.title],
       onChanged: (bool? value) async {
@@ -184,7 +192,7 @@ class _ConsentPageState extends State<ConsentPage> {
               }
             : null, // Button is disabled if required items are not checked
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFFa38a7a), // Brownish color from image
+          backgroundColor: const Color(0xFFa38a7a), 
           disabledBackgroundColor: Colors.grey[400],
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8),

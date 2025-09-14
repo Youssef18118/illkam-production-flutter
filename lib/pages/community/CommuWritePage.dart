@@ -40,9 +40,8 @@ class _CommuWritePageState extends State<CommuWritePage> {
   @override
   void didChangeDependencies() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final args =
-          ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
-      if (args != null && exPost == null) {
+      final args = ModalRoute.of(context)!.settings.arguments;
+      if (args is Map<String, dynamic> && exPost == null) {
         print(args['post']);
         Posts post = args['post'];
         exPost = post;

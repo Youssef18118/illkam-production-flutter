@@ -221,7 +221,7 @@ class _EditWorkPageState extends State<EditWorkPage> {
                       workId: work.selectedWork?.id ?? -1);
                   await work.reload();
                   Provider.of<WorkController>(context, listen: false)
-                      .fetchWorkDetailInfoAndGetCanApply();
+                      .fetchWorkDetailInfoAndGetCanApply(work.selectedWork?.id ?? -1);
                   showWorkEditFinishedDialog(context);
                 })
           ],

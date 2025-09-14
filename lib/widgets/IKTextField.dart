@@ -22,6 +22,7 @@ class IkTextField extends StatefulWidget {
   final TextFormFieldType fieldType;
   final Function? onTap;
   final int? length;
+  final bool required;
 
   const IkTextField(
       {Key? key,
@@ -41,6 +42,7 @@ class IkTextField extends StatefulWidget {
         this.onTap,
       // this.formKey,
       this.fieldType = TextFormFieldType.medium,
+        this.required = false,
       this.errorText})
       : super(key: key);
 
@@ -58,16 +60,31 @@ class _IkTextFieldState extends State<IkTextField> {
         if (widget.label != null)
           Container(
             margin: EdgeInsets.only(bottom: 6),
-            child: Text(
-              widget.label!,
-              style: TextStyle(
-                color: Color(0xFF949494),
-                fontSize: 12,
-                fontFamily: 'Pretendard',
-                fontWeight: FontWeight.w600,
-                letterSpacing: -0.12,
+            child: RichText(
+              text: TextSpan(
+                text: widget.label!,
+                style: TextStyle(
+                  color: Color(0xFF949494),
+                  fontSize: 12,
+                  fontFamily: 'Pretendard',
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: -0.12,
+                ),
+                children: [
+                  if (widget.required)
+                    TextSpan(
+                      text: ' *',
+                      style: TextStyle(
+                        color: Colors.red,
+                        fontSize: 12,
+                        fontFamily: 'Pretendard',
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: -0.12,
+                      ),
+                    ),
+                ],
               ),
-            ),
+            )
           ),
         Row(
           // mainAxisAlignment: MainAxisAlignment.center,

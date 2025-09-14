@@ -12,6 +12,7 @@ class IKWorkTypeSelector extends StatelessWidget {
   final Function changeMainType; // 선택된 읍/면/동
   final Function changeDetailType; // 선택된 읍/면/동
   final bool useLabel;
+  final bool required;
 
   IKWorkTypeSelector({
     super.key,
@@ -21,6 +22,7 @@ class IKWorkTypeSelector extends StatelessWidget {
     required this.changeMainType,
     required this.changeDetailType,
     required this.items,
+    this.required = false,
   });
 
   final ButtonStyleData buttonStyleData = ButtonStyleData(
@@ -76,15 +78,43 @@ class IKWorkTypeSelector extends StatelessWidget {
         if (useLabel)
           Container(
             margin: EdgeInsets.only(bottom: 6),
-            child: Text(
-              "일깜유형",
-              style: TextStyle(
-                color: Color(0xFF545454),
-                fontSize: 12,
-                fontFamily: 'Pretendard',
-                fontWeight: FontWeight.w600,
-                letterSpacing: -0.12,
-              ),
+            child: Row(
+              children: [
+                Text(
+                  "일깜유형",
+                  style: TextStyle(
+                    color: Color(0xFF545454),
+                    fontSize: 12,
+                    fontFamily: 'Pretendard',
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: -0.12,
+                  ),
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  '(필수)',
+                  style: TextStyle(
+                    color: Color(0xFF545454),
+                    fontSize: 12,
+                    fontFamily: 'Pretendard',
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: -0.12,
+                  ),
+                ),
+                if (required)
+                  const SizedBox(width: 4),
+                if (required)
+                  Text(
+                    '*',
+                    style: TextStyle(
+                      color: Color(0xFFFF0000),
+                      fontSize: 12,
+                      fontFamily: 'Pretendard',
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: -0.12,
+                    ),
+                  ),
+              ],
             ),
           ),
         Row(

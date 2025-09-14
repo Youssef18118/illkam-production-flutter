@@ -7,7 +7,6 @@ import 'package:ilkkam/pages/myPage/MyApplyWorkList.dart';
 import 'package:ilkkam/pages/myPage/MyWorkList.dart';
 import 'package:ilkkam/pages/myPage/ProfileEditPage.dart';
 import 'package:ilkkam/pages/register/LandingPage.dart';
-import 'package:ilkkam/pages/tabContainer.dart';
 import 'package:ilkkam/providers/users/UserController.dart';
 import 'package:ilkkam/providers/works/WorkController.dart';
 import 'package:ilkkam/providers/works/Works.dart';
@@ -327,11 +326,8 @@ class _MyPageState extends State<MyPage> {
         })),
         Divider(color: Color(0xFFEAEAEA), height: 16,),
         _menuTitle((){showTwoButtonDialog(context, "로그아웃", "정말 로그아웃할까요?", (){}, ()async {
-            print("saveJWT working");
-            SharedPreferences prefs = await SharedPreferences.getInstance();
-            await prefs.clear();
-            Provider.of<UserController>(context, listen: false).setLogin(false);
-            Navigator.of(context).pushNamedAndRemoveUntil( TabContainer.routeName, (route)=> false);
+            await Provider.of<UserController>(context, listen: false).signOut();
+            Navigator.of(context).pushNamedAndRemoveUntil("/main", (route)=> false);
         });}, "로그아웃"),
         _menuTitle(() {
           showTwoButtonDialog(context, "회원탈퇴", "정말 회원탈퇴하시겠습니까? 모든 정보가 삭제되며 복구되지 않습니다.", (){}, ()async {
@@ -343,8 +339,8 @@ class _MyPageState extends State<MyPage> {
 
             SharedPreferences prefs = await SharedPreferences.getInstance();
             await prefs.clear();
-            Provider.of<UserController>(context, listen: false).setLogin(false);
-            Navigator.of(context).pushNamedAndRemoveUntil( TabContainer.routeName, (route)=> false);
+
+            Navigator.of(context).pushNamedAndRemoveUntil( LandingPage.routeName, (route)=> false);
           });
 
         }, "회원탈퇴"),

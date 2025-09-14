@@ -4,8 +4,10 @@ import 'package:ilkkam/pages/main/UploadWorkPage.dart';
 import 'package:ilkkam/pages/main/widgets/WorkDayCountWidget.dart';
 import 'package:ilkkam/pages/main/widgets/WorkFilterMonth.dart';
 import 'package:ilkkam/pages/main/widgets/WorkFilters.dart';
+import 'package:ilkkam/pages/register/LandingPage.dart' as register;
 import 'package:ilkkam/providers/works/WorkController.dart';
 import 'package:ilkkam/providers/works/dto/WorksSummaryDto.dart';
+import 'package:ilkkam/providers/users/UserController.dart';
 import 'package:ilkkam/utils/styles.dart';
 import 'package:ilkkam/widgets/IKDivider.dart';
 import 'package:ilkkam/widgets/WorkItem.dart';
@@ -22,53 +24,23 @@ class WorkListPage extends StatefulWidget {
 }
 
 class _WorkListPageState extends State<WorkListPage> {
-  // --- START CHANGE 1: Add a local ScrollController ---
-  late final ScrollController _scrollController;
-  late final WorkController _workController;
-  // --- END CHANGE 1 ---
-
+  // Create a local ScrollController for this page
+  final ScrollController _scrollController = ScrollController();
+  
   @override
   void initState() {
-    _workController = Provider.of<WorkController>(context, listen: false);
-
-    // 1. Create the controller here
-    _scrollController = ScrollController();
-    
-    // 2. Assign its reference to the provider
-    _workController.workListPageScrollC = _scrollController; 
-
-    // Add listener for infinite scrolling
-    _scrollController.addListener(_onScroll);
-
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _scrollToSelectedDate();
     });
     // TODO: implement initState
     super.initState();
   }
-
+  
   @override
   void dispose() {
-    // REMOVE THE OLD LISTENER FIRST!
-    _scrollController.removeListener(_onScroll);
-
-    // 3. IMPORTANT: Clear the reference in the provider
-    if (_workController.workListPageScrollC == _scrollController) {
-      _workController.workListPageScrollC = null;
-    }
-    
-    // 4. Dispose of the controller
+    // Dispose the controller when the widget is removed
     _scrollController.dispose();
     super.dispose();
-  }
-
-  void _onScroll() {
-    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent * 0.85) {
-        // This logic looks similar to your 'listner' method in WorkController.
-        // You might need to call the provider method from here.
-        _workController.reloadWorkList(); 
-    }
   }
 
   void _scrollToSelectedDate() {
@@ -176,7 +148,7 @@ class _WorkListPageState extends State<WorkListPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    GestureDetector(
+                   GestureDetector(
                       onTap: (){
                         _scrollController.animateTo(0, duration: Duration(milliseconds: 300), curve: Curves.easeInOut);
                       },
@@ -185,6 +157,12 @@ class _WorkListPageState extends State<WorkListPage> {
                     SizedBox(height: 12,),
                     MaterialButton(
                       onPressed: () {
+                        final userC = Provider.of<UserController>(context, listen: false);
+                        if (!userC.login) {
+                          Navigator.of(context, rootNavigator: true)
+                              .pushNamed(register.LandingPage.routeName);
+                          return;
+                        }
                         Navigator.of(context).pushNamed(UploadWorkPage.routeName);
                       },
                       elevation: 0,

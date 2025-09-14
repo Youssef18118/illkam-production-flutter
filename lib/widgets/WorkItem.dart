@@ -2,23 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:ilkkam/models/workTypes/WorkTypeTotalResDto.dart';
 import 'package:ilkkam/pages/main/WorkDetailpage.dart';
-import 'package:ilkkam/pages/register/LandingPage.dart' as RegisterLandingPage;
+
+import 'package:ilkkam/pages/register/LandingPage.dart';
 import 'package:ilkkam/providers/TabController.dart';
 import 'package:ilkkam/providers/applies/AppliesRepository.dart';
 import 'package:ilkkam/providers/works/WorkController.dart';
 import 'package:ilkkam/providers/works/Works.dart';
+import 'package:ilkkam/providers/users/UserController.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class WorkItem extends StatelessWidget {
   final Work work;
-  final bool isGuest;
 
-  const WorkItem({super.key, required this.work, this.isGuest = false});
+  const WorkItem({super.key, required this.work});
 
   @override
   Widget build(BuildContext context) {
     final workProvider = Provider.of<WorkController>(context);
+    final userC = Provider.of<UserController>(context, listen: false);
 
     String? image;
     switch (work.workTypes?.name) {
@@ -53,18 +55,13 @@ class WorkItem extends StatelessWidget {
 
     return GestureDetector(
       onTap: () {
-        // if (isGuest) return;
-        // // workProvider.routeToWorkDetailpage(context,work.id ?? -1);
-        // workProvider.setWork(work);
-        // Navigator.of(context, rootNavigator: true)
-        //     .pushNamed(WorkDetailPage.routeName);
-          if (isGuest) {
-            Navigator.pushNamed(context, RegisterLandingPage.LandingPage.routeName);
-            return;
-          }
-          workProvider.setWork(work);
+        if (!userC.isLogIn) {
           Navigator.of(context, rootNavigator: true)
-              .pushNamed(WorkDetailPage.routeName);
+              .pushNamed(LandingPage.routeName);
+          return;
+        }
+        Provider.of<WorkController>(context, listen: false)
+            .routeToWorkDetailpage(context, work.id ?? -1);
       },
       child: Container(
         color: Colors.transparent,
@@ -86,7 +83,8 @@ class WorkItem extends StatelessWidget {
                           width: 40,
                           height: 40,
                         ),
-                        if (work.appliesList!
+                        if (work.appliesList != null &&
+                            work.appliesList!
                             .where((elem) =>
                                 elem.status == APPLY_STATUS.confirm.value)
                             .isNotEmpty)
@@ -138,8 +136,7 @@ class WorkItem extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            "${work.workLocationSi} ${work.workLocationGu}" ??
-                                '',
+                            "${work.workLocationSi ?? ''} ${work.workLocationGu ?? ''}",
                             // '인천시 서구 가정동',,
                             style: const TextStyle(
                               color: Color(0xFF747474),
@@ -171,7 +168,7 @@ class WorkItem extends StatelessWidget {
                             ),
                           if (work.workTypes?.name=="가전 청소")
                             Text(
-                              '${work.workInfoDetail?[1].value}대',
+                              '${work.workInfoDetail?[1].value ?? ''}대',
                               style: TextStyle(
                                 color: Color(0xFF545454),
                                 fontSize: 14,
@@ -225,7 +222,7 @@ class WorkItem extends StatelessWidget {
                               children: [
                                 TextSpan(
                                   text:
-                                      NumberFormat("#,###").format(work.price),
+                                      NumberFormat("#,###").format(work.price ?? 0),
                                   style: TextStyle(
                                     color: Color(0xFF191919),
                                     fontSize: 16,

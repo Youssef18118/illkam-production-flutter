@@ -4,8 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:ilkkam/providers/chats/ChatsRepository.dart';
 import 'package:ilkkam/providers/chats/dto/ChatMessage.dart';
 import 'package:ilkkam/providers/chats/dto/Chats.dart';
-import 'package:ilkkam/providers/users/UserController.dart';
-import 'package:provider/provider.dart';
 import 'package:stomp_dart_client/stomp_dart_client.dart';
 
 import '../../apis/base.dart';
@@ -61,57 +59,18 @@ class ChatsController with ChangeNotifier {
     unreadCount = count;
   }
 
-  // initialize() async {
-  //   isChatLoading = true;
-
-  //   requestChats = (await chatsRepository.getRequestChat())
-  //       .where((elem) => elem.employerExist ?? true)
-  //       .toList();
-  //   applyChats = (await chatsRepository.getApplyChats())
-  //       .where((elem) => elem.employeeExist ?? true)
-  //       .toList();
-
-  //   isChatLoading = false;
-  //   notifyListeners();
-  // }
-
-  Future<void> initialize(BuildContext context) async {
-    final userController = Provider.of<UserController>(context, listen: false);
-    if (!userController.isLogIn) {
-      return;
-    }
-
-    // Prevent this method from running multiple times simultaneously
-    if (isChatLoading) {
-      return;
-    }
-
+  initialize() async {
     isChatLoading = true;
-    // This first notifyListeners is safe if we call initialize correctly (like we just did in ChatListPage)
-    // but wrapping it in a microtask makes it safe everywhere.
-    Future.microtask(() => notifyListeners());
 
-    try {
-      // Use Future.wait to fetch both lists at the same time. It's faster.
-      final results = await Future.wait([
-        chatsRepository.getRequestChat(),
-        chatsRepository.getApplyChats(),
-      ]);
+    requestChats = (await chatsRepository.getRequestChat())
+        .where((elem) => elem.employerExist ?? true)
+        .toList();
+    applyChats = (await chatsRepository.getApplyChats())
+        .where((elem) => elem.employeeExist ?? true)
+        .toList();
 
-      requestChats = (results[0] as List<Chats>)
-          .where((elem) => elem.employerExist ?? true)
-          .toList();
-      applyChats = (results[1] as List<Chats>)
-          .where((elem) => elem.employeeExist ?? true)
-          .toList();
-          
-    } catch (e) {
-      print("Error fetching chat lists: $e");
-      // Handle error case if necessary
-    } finally {
-      isChatLoading = false;
-      notifyListeners();
-    }
+    isChatLoading = false;
+    notifyListeners();
   }
 
   Future getChatRoomDetails({int page = 0}) async {
@@ -187,9 +146,9 @@ class ChatsController with ChangeNotifier {
     await chatsRepository.makeRequesterChat(workId, applierid);
   }
 
-  exitChat(String chatId, BuildContext context) async {
+  exitChat(String chatId) async {
     await chatsRepository.exitChat(chatId);
-    initialize(context);
+    initialize();
   }
 
   setChat(Chats chat) {
@@ -271,7 +230,7 @@ class ChatsController with ChangeNotifier {
     });
   }
 
-  void subscribeUnreadMessages(int userId, BuildContext context) {
+  void subscribeUnreadMessages(int userId) {
     stompClient = StompClient(
         config: StompConfig(
       url: BASE_WS,
@@ -284,7 +243,7 @@ class ChatsController with ChangeNotifier {
             final unreadChat = jsonDecode(frame.body ?? '');
             ChatMessage info = ChatMessage.fromJson(unreadChat);
             print("unreadsocket is ${info.createdAt}");
-            updateUnreadMessage(info, context);
+            updateUnreadMessage(info);
           },
         );
       },
@@ -303,11 +262,11 @@ class ChatsController with ChangeNotifier {
     unreadCount = count;
   }
 
-  updateUnreadMessage(ChatMessage info, BuildContext context) async {
+  updateUnreadMessage(ChatMessage info) async {
     // 기존 채팅방인 경우 unread 다시 초기화
     if (!unreadRoomInfo.any((room) => room.roomId == info.roomId)) {
       await initializeChat();
-      await initialize(context);
+      await initialize();
     }
     refreshChats(info);
     // 안 읽은 메세지 수 총합

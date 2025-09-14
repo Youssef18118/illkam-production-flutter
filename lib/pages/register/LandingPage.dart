@@ -5,6 +5,7 @@ import 'package:ilkkam/apis/usersAPI.dart';
 import 'package:ilkkam/models/req/UsersLoginReq.dart';
 import 'package:ilkkam/models/req/UsersSaveReq.dart';
 import 'package:ilkkam/pages/consent/ConsentPage.dart';
+import 'package:ilkkam/pages/register/RegisterInfoInputPage.dart';
 import 'package:ilkkam/providers/users/UserController.dart';
 import 'package:ilkkam/widgets/IKCommonBtn.dart';
 import 'package:ilkkam/widgets/IKTextField.dart';
@@ -76,19 +77,24 @@ class _LandingPageState extends State<LandingPage> {
                       ),
                       SizedBox(height: 100,),
                       IKCommonBtn(title: "로그인", onTap: ()async {
-                        await usersService.login(UserLoginReq(
+                        int? loginResult = await usersService.login(UserLoginReq(
                           email: emailC.text,
                           password: passswordC.text
                         ));
 
-                        Provider.of<UserController>(context,listen: false).setLogin(true);
-                        _firebaseMessaging.getToken().then((String? token) async {
-                          await usersService.setFCM(UserSaveReq(fcmToken: token));
-                          print("FCM Token: $token");
-                          Navigator.popAndPushNamed(context, "/main");
-                          // 이 토큰을 Spring Boot 서버에 전송하여 저장
-                        });
-
+                        if (loginResult != null) {
+                          Provider.of<UserController>(context,listen: false).setLogin(true);
+                          _firebaseMessaging.getToken().then((String? token) async {
+                            await usersService.setFCM(UserSaveReq(fcmToken: token));
+                            print("FCM Token: $token");
+                            Navigator.popAndPushNamed(context, "/main");
+                            // 이 토큰을 Spring Boot 서버에 전송하여 저장
+                          });
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('로그인에 실패했습니다. 이메일과 비밀번호를 확인해주세요.')),
+                          );
+                        }
                       }),
                       SizedBox(height: 8,),
                       IKCommonBtn(title: "회원가입", onTap: (){

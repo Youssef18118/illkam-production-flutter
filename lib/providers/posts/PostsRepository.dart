@@ -6,59 +6,25 @@ import 'package:ilkkam/providers/posts/Posts.dart';
 class PostsRepository {
   final BaseAPI baseAPI = BaseAPI();
 
-  // Future<List<Posts>> getPosts({int category = 1, int page=0}) async {
-  //   print('게시글 데이터 불러오기');
-  //   print("category is $category and page is $page");
-  //   final resJson = await baseAPI.basicGet("posts/?category=$category&page=$page");
-  //   List<Posts> result = [];
-  //   resJson.forEach((v) {
-  //     result.add(new Posts.fromJson(v));
-  //   });
-  //   return result;
-  // }
-
   Future<List<Posts>> getPosts({int category = 1, int page=0}) async {
     print('게시글 데이터 불러오기');
     print("category is $category and page is $page");
-    final resJson = await baseAPI.basicGet("posts/?category=$category&page=$page");
+    final resJson = await baseAPI.basicGet("posts/?category=$category&page=$page", auth: false);
     List<Posts> result = [];
-
-    // FIX: Add null check for guest users
-    if (resJson == null) {
-      return []; // Return empty list to prevent crash
-    }
-
     resJson.forEach((v) {
       result.add(new Posts.fromJson(v));
     });
     return result;
   }
 
-  // Future<List<PostsCategoryDto>> getCategories() async {
-  //   print('게시글 카테고리 불러오기');
-  //   final resJson = await baseAPI.basicGet("posts/category");
-  //   print(resJson);
-  //   List<PostsCategoryDto> result = [
-
-  //   ];
-
-
-  //   resJson.forEach((v) {
-  //     result.add(PostsCategoryDto.fromJson(v));
-  //   });
-  //   return result;
-  // }
-
   Future<List<PostsCategoryDto>> getCategories() async {
     print('게시글 카테고리 불러오기');
-    final resJson = await baseAPI.basicGet("posts/category");
+    final resJson = await baseAPI.basicGet("posts/category", auth: false);
     print(resJson);
-    List<PostsCategoryDto> result = [];
+    List<PostsCategoryDto> result = [
 
-    // FIX: Add null check for guest users
-    if (resJson == null) {
-      return []; // Return empty list to prevent crash
-    }
+    ];
+
 
     resJson.forEach((v) {
       result.add(PostsCategoryDto.fromJson(v));
@@ -86,10 +52,12 @@ class PostsRepository {
     return resJson;
   }
 
-  Future<Posts> getOnePosts(int post_id) async {
+  Future<Posts?> getOnePosts(int post_id) async {
     print('게시글 넘버 ${post_id} 불러오기');
-    final resJson = await baseAPI.basicGet("posts/${post_id}");
-
+    final resJson = await baseAPI.basicGet("posts/${post_id}", auth: false);
+    if (resJson == null) {
+      return null;
+    }
     return Posts.fromJson(resJson);
   }
 

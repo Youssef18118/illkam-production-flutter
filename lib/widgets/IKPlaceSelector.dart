@@ -71,6 +71,7 @@ class IKPlaceSelector extends StatelessWidget {
   );
 
   bool useLabel = false;
+  final bool required;
 
   IKPlaceSelector(
       {super.key,
@@ -81,7 +82,7 @@ class IKPlaceSelector extends StatelessWidget {
       required this.changeProvince,
       required this.changeCity,
       // required this.changeSubCity
-      });
+      this.required = false});
 
   @override
   Widget build(BuildContext context) {
@@ -92,15 +93,43 @@ class IKPlaceSelector extends StatelessWidget {
 
         Container(
           margin: EdgeInsets.only(bottom: 6),
-          child: Text(
-            "지역",
-            style: TextStyle(
-              color: Color(0xFF545454),
-              fontSize: 12,
-              fontFamily: 'Pretendard',
-              fontWeight: FontWeight.w600,
-              letterSpacing: -0.12,
-            ),
+          child: Row(
+            children: [
+              Text(
+                "지역",
+                style: TextStyle(
+                  color: Color(0xFF545454),
+                  fontSize: 12,
+                  fontFamily: 'Pretendard',
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: -0.12,
+                ),
+              ),
+              const SizedBox(width: 4),
+              Text(
+                '(필수)',
+                style: TextStyle(
+                  color: Color(0xFF545454),
+                  fontSize: 12,
+                  fontFamily: 'Pretendard',
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: -0.12,
+                ),
+              ),
+              if (required)
+                const SizedBox(width: 4),
+              if (required)
+                Text(
+                  '*',
+                  style: TextStyle(
+                    color: Color(0xFFFF0000),
+                    fontSize: 12,
+                    fontFamily: 'Pretendard',
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: -0.12,
+                  ),
+                ),
+            ],
           ),
         ),
         Row(

@@ -98,8 +98,10 @@ class PostsController with ChangeNotifier {
 
   Future<void> refreshSelectedPosts(int post_id) async {
     postsRepository.getOnePosts(post_id).then((v) {
-      selectedPosts = v;
-      notifyListeners();
+      if (v != null) {
+        selectedPosts = v;
+        notifyListeners();
+      }
     });
   }
 

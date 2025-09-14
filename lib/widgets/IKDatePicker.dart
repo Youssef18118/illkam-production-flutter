@@ -11,6 +11,7 @@ class IkDatePicker extends StatelessWidget {
   final String format;
   final bool? noMatter;
   final void Function(bool?)? noMatterChange;
+  final bool required;
 
   const IkDatePicker(
       {super.key,
@@ -20,7 +21,8 @@ class IkDatePicker extends StatelessWidget {
       this.timeOfDay,
       required this.format,
       this.noMatter,
-      this.noMatterChange});
+      this.noMatterChange,
+      this.required = false});
 
   @override
   Widget build(BuildContext context) {
@@ -55,6 +57,19 @@ class IkDatePicker extends StatelessWidget {
                     letterSpacing: -0.12,
                   ),
                 ),
+                if (required)
+                  const SizedBox(width: 4),
+                if (required)
+                  Text(
+                    '*',
+                    style: TextStyle(
+                      color: Color(0xFFFF0000),
+                      fontSize: 12,
+                      fontFamily: 'Pretendard',
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: -0.12,
+                    ),
+                  ),
               ],
             ),
           ),

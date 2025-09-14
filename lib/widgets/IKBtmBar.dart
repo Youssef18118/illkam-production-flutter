@@ -30,20 +30,23 @@ class _IkbtmbarState extends State<Ikbtmbar> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return
+      Container(
       height: 66,
-      padding: EdgeInsets.symmetric(horizontal: 20),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          for (int index = 0; index < widget.items.length; index++)
-            barItem(widget.items[index], index, context),
-        ],
-      ),
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+          itemCount: widget.items.length,
+          // itemExtent: (MediaQuery.of(context).size.width-80)/4,
+          // shrinkWrap: true,
+          itemBuilder: (BuildContext ctx, int index) {
+            return barItem(widget.items[index], index,ctx);
+          },
+        separatorBuilder: (BuildContext ctx, int index) {
+          return SizedBox(width: (MediaQuery.of(context).size.width - 4*55 - 40)/3,);
+        },
+          ),
     );
   }
-  
-
 
   Widget barItem(BottomNavigationBarItem item, int idx, BuildContext context) => GestureDetector(
         onTap: (){

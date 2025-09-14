@@ -9,6 +9,8 @@ class ImagePickerWidget extends StatelessWidget {
   final List<String> img;
   final String label;
   final bool isImageUploading;
+  final bool required;
+  final bool hasError;
 
   const ImagePickerWidget(
       {super.key,
@@ -18,6 +20,8 @@ class ImagePickerWidget extends StatelessWidget {
       required this.onTap,
         this.onDelete,
       required this.isImageUploading,
+        this.required = false,
+        this.hasError = false,
       required this.img});
 
   @override
@@ -25,14 +29,29 @@ class ImagePickerWidget extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: TextStyle(
-            color: Color(0xFF949494),
-            fontSize: 12,
-            fontFamily: 'Pretendard',
-            fontWeight: FontWeight.w600,
-            letterSpacing: -0.12,
+        RichText(
+          text: TextSpan(
+            text: label,
+            style: TextStyle(
+              color: Color(0xFF949494),
+              fontSize: 12,
+              fontFamily: 'Pretendard',
+              fontWeight: FontWeight.w600,
+              letterSpacing: -0.12,
+            ),
+            children: [
+              if (required)
+                TextSpan(
+                  text: ' *',
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontSize: 12,
+                    fontFamily: 'Pretendard',
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: -0.12,
+                  ),
+                ),
+            ],
           ),
         ),
         SizedBox(
@@ -50,7 +69,7 @@ class ImagePickerWidget extends StatelessWidget {
               itemBuilder: (ctx, idx) {
                 if (idx == 0) {
                   return _basicCameraBtn(
-                      length, count, onTap, isImageUploading);
+                      length, count, onTap, isImageUploading, hasError);
                 } else {
                   return Container(
                     width: 107,
@@ -59,7 +78,7 @@ class ImagePickerWidget extends StatelessWidget {
                     decoration: ShapeDecoration(
                       color: Colors.white,
                       shape: RoundedRectangleBorder(
-                        side: BorderSide(width: 1, color: Color(0xFFE1E1E1)),
+                        side: BorderSide(width: 1, color: hasError ? Colors.red : Color(0xFFE1E1E1)),
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
@@ -83,7 +102,7 @@ class ImagePickerWidget extends StatelessWidget {
   }
 
   Widget _basicCameraBtn(int length, int count, void Function()? onTap,
-          bool isImageUploading) =>
+          bool isImageUploading, bool hasError) =>
       GestureDetector(
         onTap: onTap,
         child: Container(
@@ -93,7 +112,7 @@ class ImagePickerWidget extends StatelessWidget {
           decoration: ShapeDecoration(
             color: Colors.white,
             shape: RoundedRectangleBorder(
-              side: BorderSide(width: 1, color: Color(0xFFE1E1E1)),
+              side: BorderSide(width: 1, color: hasError ? Colors.red : Color(0xFFE1E1E1)),
               borderRadius: BorderRadius.circular(12),
             ),
           ),

@@ -30,152 +30,125 @@ class BaseAPI {
     await prefs.setInt("jwt", token);
   }
 
-  // Future<dynamic> basicGet(String route) async {
-  //   String base = BASE_URL;
-  //   String url = '$base$route';
+  Future<void> clearAllSharedPref() async {
+    print("clearAllSharedPref working after sign out");
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+  }
 
-  //   int? jwt = await getJWT();
-
-  //   if (jwt == null) {
-  //     return;
-  //   }
-
-  //   // TODO jwt 갱신하거나 로그아웃 하는 방안
-  //   String? accessToken = jwt.toString();
-  //   final response = await http.get(Uri.parse(url),headers:{
-  //      'Authorization': 'Bearer $accessToken', // Bearer 토큰 추가
-  //    });
-  //   // }: Options(headers:{
-  //   //   'Authorization': 'Bearer $accessToken', // Bearer 토큰 추가
-  //   // }));
-
-
-  //   if (response.statusCode == 200) {
-  //     final data = json.decode(response.body);
-  //     return data;
-  //   } else {
-  //     throw Exception('Failed to fetch');
-  //   }
-  // }
-  
-  Future<dynamic> basicGet(String route) async {
+  Future<dynamic> basicGet(String route, {bool auth = true}) async {
     String base = BASE_URL;
     String url = '$base$route';
+    Map<String, String> headers = {};
 
-    int? jwt = await getJWT();
-
-    // Prepare headers map
-    Map<String, String> headers = {
-      'Content-Type': 'application/json',
-    };
-
-    // If a JWT exists, add the Authorization header.
-    // If it doesn't exist, this header will simply be omitted.
-    if (jwt != null) {
-      String accessToken = jwt.toString();
-      headers['Authorization'] = 'Bearer $accessToken';
+    if (auth) {
+      int? jwt = await getJWT();
+      if (jwt != null) {
+        String accessToken = jwt.toString();
+        headers['Authorization'] = 'Bearer $accessToken';
+      }
     }
 
-    // Now, make the API call for EVERYONE, with or without the token.
-    final response = await http.get(Uri.parse(url), headers: headers);
+    try {
+      final response = await http.get(Uri.parse(url), headers: headers);
 
-    if (response.statusCode == 200) {
-      try {
-        final data = json.decode(utf8.decode(response.bodyBytes)); // Handles Korean characters correctly
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
         return data;
-      } catch (e) {
-        print("Error decoding JSON: $e");
-        return null; // Return null if JSON is malformed
+      } else {
+        return null;
       }
-    } else {
-      // For guest users, the backend might return a 401 or 403 error.
-      // We should not throw an exception, but instead return null so the UI can handle it.
-      print('Failed to fetch data for route: $route, status code: ${response.statusCode}');
+    } catch (e) {
       return null;
     }
   }
 
+  Future<dynamic> basicDelete(String route, {bool auth = true}) async {
+    final url = '$BASE_URL$route';
+    Map<String, String> headers = {};
 
-  Future<dynamic> basicDelete(String route) async {
-    final url = '$BASE_URL$route'; // 데이터를 가져올 서버의 URL
-    // TODO jwt 갱신하거나 로그아웃 하는 방안
-    int? jwt = await getJWT();
-    if (jwt == null) {
-      return;
+    if (auth) {
+      int? jwt = await getJWT();
+      if (jwt != null) {
+        String accessToken = jwt.toString();
+        headers['Authorization'] = 'Bearer $accessToken';
+      }
     }
-    String accessToken = jwt.toString();
 
-    final response =
-        await http.delete(Uri.parse(url), headers: <String, String>{
-      'Authorization': 'Bearer $accessToken', // Bearer 토큰 추가
-    });
+    try {
+      final response = await http.delete(Uri.parse(url), headers: headers);
 
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      return data;
-    } else {
-      throw Exception('Failed to fetch');
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return data;
+      } else {
+        return null;
+      }
+    } catch (e) {
+      return null;
     }
   }
 
-  Future<dynamic> basicPost(String route, dynamic body) async {
-    final url = '$BASE_URL$route'; // 데이터를 가져올 서버의 URL
-    // TODO jwt 갱신하거나 로그아웃 하는 방안
-    int? jwt = await getJWT();
-    if (jwt == null) {
-      return;
+  Future<dynamic> basicPost(
+      String route, dynamic body, {bool auth = true}) async {
+    final url = '$BASE_URL$route';
+    Map<String, String> headers = {"Content-Type": "application/json"};
+
+    if (auth) {
+      int? jwt = await getJWT();
+      if (jwt != null) {
+        String accessToken = jwt.toString();
+        headers['Authorization'] = 'Bearer $accessToken';
+      }
     }
-    String accessToken = jwt.toString();
-    try{
+
+    try {
       final response = await http.post(Uri.parse(url),
-          headers: <String, String>{
-            'Authorization': 'Bearer $accessToken', // Bearer 토큰 추가
-            "Content-Type": "application/json",
-          },
-          body: json.encode(body)  );
+          headers: headers, body: json.encode(body));
       print(json.encode(body));
 
       if (response.statusCode == 200) {
-        try{
+        try {
           print(json.encode(response));
           final data = json.decode(response.body);
           print(json.encode(response.body));
           return data;
-        }catch(error){
+        } catch (error) {
           return response.body;
         }
-
       } else {
         print(response.body);
-        throw Exception('Failed to fetch');
+        return null;
       }
-    }catch(error){
+    } catch (error) {
       print(error);
+      return null;
     }
-
-
   }
 
-  Future<dynamic> basicPut(String route, dynamic body) async {
-    final url = '$BASE_URL$route'; // 데이터를 가져올 서버의 URL
-    // TODO jwt 갱신하거나 로그아웃 하는 방안
-    int? jwt = await getJWT();
-    if (jwt == null) {
-      return;
-    }
-    String accessToken = jwt.toString();
+  Future<dynamic> basicPut(String route, dynamic body, {bool auth = true}) async {
+    final url = '$BASE_URL$route';
+    Map<String, String> headers = {"Content-Type": "application/json"};
 
-    final response = await http.put(Uri.parse(url),
-        headers: <String, String>{
-          'Authorization': 'Bearer $accessToken', // Bearer 토큰 추가
-          "Content-Type": "application/json",
-        },
-        body: json.encode(body) );
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      return data;
-    } else {
-      throw Exception('Failed to fetch');
+    if (auth) {
+      int? jwt = await getJWT();
+      if (jwt != null) {
+        String accessToken = jwt.toString();
+        headers['Authorization'] = 'Bearer $accessToken';
+      }
+    }
+
+    try {
+      final response = await http.put(Uri.parse(url),
+          headers: headers, body: json.encode(body));
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return data;
+      } else {
+        return null;
+      }
+    } catch (e) {
+      return null;
     }
   }
 }

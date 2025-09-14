@@ -48,12 +48,20 @@ class _WorkDetailPageState extends State<WorkDetailPage> {
   // star rating
   double value = 3.0;
 
+  bool _isInit = true;
+
   @override
-  void initState() {
-    Provider.of<WorkController>(context, listen: false)
-        .fetchWorkDetailInfoAndGetCanApply();
-    // TODO: implement didChangeDependencies
-    super.initState();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_isInit) {
+      final workFromArg = ModalRoute.of(context)?.settings.arguments as Work?;
+      final workController = Provider.of<WorkController>(context, listen: false);
+
+      if (workFromArg != null) {
+        workController.fetchWorkDetailInfoAndGetCanApply(workFromArg.id ?? -1);
+      }
+    }
+    _isInit = false;
   }
 
   @override
@@ -152,10 +160,11 @@ class _WorkDetailPageState extends State<WorkDetailPage> {
                                           work.selectedWork?.employer?.name ?? '',
                                           style: TextStyle(
                                             color: Color(0xFF191919),
-                                            fontSize: 21,
+                                            fontSize: getResponsiveFontSize(work.selectedWork?.employer?.name ?? '', MediaQuery.of(context).size.width * 0.5),
                                             fontFamily: 'Pretendard',
                                             fontWeight: FontWeight.w600,
                                           ),
+                                          overflow: TextOverflow.ellipsis,
                                         ),
                                         IconButton(
                                             visualDensity: VisualDensity.compact,
@@ -812,4 +821,10 @@ class _WorkDetailPageState extends State<WorkDetailPage> {
       ),
     );
   }
+}
+
+double getResponsiveFontSize(String text, double maxWidth) {
+  if (text.length > 15) return 18; // Smaller font for long names
+  if (text.length > 10) return 19;
+  return 21; // Default size
 }

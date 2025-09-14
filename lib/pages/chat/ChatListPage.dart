@@ -24,7 +24,7 @@ class _ChatListPageState extends State<ChatListPage>
 
   @override
   void initState() {
-    Provider.of<ChatsController>(context, listen: false).initialize(context);
+    Provider.of<ChatsController>(context, listen: false).initialize();
     tabController = TabController(length: 2, vsync: this);
     tabController.addListener(() {
       setState(() {});
@@ -147,7 +147,7 @@ class _ChatListPageState extends State<ChatListPage>
                           onPressed: (context) async {
                             await Provider.of<ChatsController>(context,
                                     listen: false)
-                                .exitChat(chat.id ?? '', context);
+                                .exitChat(chat.id ?? '');
                           },
                           backgroundColor: Color(0xFF5CD1F4),
                           foregroundColor: Colors.white,

@@ -26,70 +26,30 @@ class IlkkamApp extends StatefulWidget {
 class _IlkkamAppState extends State<IlkkamApp> {
   FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
   UsersService usersService = UsersService();
-  bool isLogin = false;
-
-  // @override
-  // void initState() {
-  //   Provider.of<UserController>(context, listen: false).initialize().then((e) {
-  //     if (Provider.of<UserController>(context, listen: false).isLogIn) {
-  //       // FCM 토큰 가져오기
-  //       _firebaseMessaging.getToken().then((String? token) async {
-  //         assert(token != null);
-  //         await usersService.setFCM(UserSaveReq(fcmToken: token));
-  //         print("FCM Token: $token");
-  //         // 이 토큰을 Spring Boot 서버에 전송하여 저장
-  //       });
-  //     }
-  //     setState(() {
-  //       isLogin = e != null;
-  //     });
-  //     Provider.of<ChatsController>(context, listen: false).subscribeUnreadMessages(e ?? -1, context);
-  //   });
-
-  //   // 포그라운드에서 푸시 알림 수신 처리
-  //   // FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-  //   //   print('Received message in foreground: ${message.notification?.title}');
-  //   // });
-
-  //   // TODO: implement initState
-  //   super.initState();
-  // }
 
   @override
   void initState() {
-    super.initState(); // It's best practice to call super.initState() first.
-
-    // Using addPostFrameCallback ensures the context is fully mounted and ready.
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final userController = Provider.of<UserController>(context, listen: false);
-      final chatsController = Provider.of<ChatsController>(context, listen: false);
-
-      userController.initialize().then((userId) {
-        // This block runs after user data is fetched.
-        if (userController.isLogIn) {
-          // FCM token logic for logged-in users.
-          _firebaseMessaging.getToken().then((String? token) async {
-            assert(token != null);
-            await usersService.setFCM(UserSaveReq(fcmToken: token));
-            print("FCM Token: $token");
-          });
-        }
-        
-        // This needs to be inside the .then() to ensure we have the userId.
-        // It will now also call the chat data initialization internally.
-        chatsController.subscribeUnreadMessages(userId ?? -1, context);
-
-        // We use mounted check to safely call setState.
-        if (mounted) {
-          setState(() {
-            isLogin = userController.isLogIn;
-          });
-        }
-      });
+    Provider.of<UserController>(context, listen: false).initialize().then((e) {
+      if (Provider.of<UserController>(context, listen: false).isLogIn) {
+        // FCM 토큰 가져오기
+        _firebaseMessaging.getToken().then((String? token) async {
+          assert(token != null);
+          await usersService.setFCM(UserSaveReq(fcmToken: token));
+          print("FCM Token: $token");
+          // 이 토큰을 Spring Boot 서버에 전송하여 저장
+        });
+      }
+      Provider.of<ChatsController>(context, listen: false).subscribeUnreadMessages(e ?? -1);
     });
+
+    // 포그라운드에서 푸시 알림 수신 처리
+    // FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    //   print('Received message in foreground: ${message.notification?.title}');
+    // });
+
+    // TODO: implement initState
+    super.initState();
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -110,31 +70,32 @@ class _IlkkamAppState extends State<IlkkamApp> {
         ));
 
     final tab = Provider.of<TabUIController>(context, listen: false);
-    final user = Provider.of<UserController>(context, listen: false);
 
-    return MaterialApp(
-      theme: theme,
-      localizationsDelegates: const [
-        GlobalMaterialLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales: const [
-        Locale('en', ''), // English, no country code
-        Locale('ko', ''), // Korean, no country code
-      ],
-      home: TabContainer(),
-      // initialRoute: isLogin ? TabContainer.routeName : LandingPage.routeName,
-      routes: Routes.getRoutes(context),
-      navigatorKey: navigatorKey,
-      navigatorObservers: [
-        MyNavigatorObserver(
-            onRouteChanged: (route) {
-              // 경로가 변경될 때 실행할 함수
-              print('Route changed to: ${route?.settings.name}');
-            },
-            tabUIController: tab)
-      ],
-      debugShowCheckedModeBanner: true,
-    );
+    return Consumer<UserController>(builder: (context, user, child) {
+      return MaterialApp(
+        theme: theme,
+        localizationsDelegates: const [
+          GlobalMaterialLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: const [
+          Locale('en', ''), // English, no country code
+          Locale('ko', ''), // Korean, no country code
+        ],
+        home: user.isLogIn ? TabContainer() : TabContainer(),
+        // initialRoute: isLogin ? TabContainer.routeName : LandingPage.routeName,
+        routes: Routes.getRoutes(context),
+        navigatorKey: navigatorKey,
+        navigatorObservers: [
+          MyNavigatorObserver(
+              onRouteChanged: (route) {
+                // 경로가 변경될 때 실행할 함수
+                print('Route changed to: ${route?.settings.name}');
+              },
+              tabUIController: tab)
+        ],
+        debugShowCheckedModeBanner: true,
+      );
+    });
   }
 }

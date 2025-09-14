@@ -8,6 +8,7 @@ class IKDropdownSelector extends StatelessWidget {
   final Function changeValue;
 
   final List<String> items;
+  final bool required;
 
   final DropdownStyleData dropdownStyleData = DropdownStyleData(
     maxHeight: 200,
@@ -47,6 +48,7 @@ class IKDropdownSelector extends StatelessWidget {
       required this.label,
       required this.selectedValue,
       required this.changeValue,
+      this.required = false,
       required this.items});
 
   @override
@@ -69,14 +71,29 @@ class IKDropdownSelector extends StatelessWidget {
       children: [
         Container(
           margin: EdgeInsets.only(bottom: 6),
-          child: Text(
-            label,
-            style: TextStyle(
-              color: Color(0xFF545454),
-              fontSize: 12,
-              fontFamily: 'Pretendard',
-              fontWeight: FontWeight.w600,
-              letterSpacing: -0.12,
+          child: RichText(
+            text: TextSpan(
+              text: label,
+              style: TextStyle(
+                color: Color(0xFF545454),
+                fontSize: 12,
+                fontFamily: 'Pretendard',
+                fontWeight: FontWeight.w600,
+                letterSpacing: -0.12,
+              ),
+              children: [
+                if (required)
+                  TextSpan(
+                    text: ' *',
+                    style: TextStyle(
+                      color: Colors.red,
+                      fontSize: 12,
+                      fontFamily: 'Pretendard',
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: -0.12,
+                    ),
+                  ),
+              ],
             ),
           ),
         ),

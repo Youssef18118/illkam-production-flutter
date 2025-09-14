@@ -11,9 +11,12 @@ import 'package:intl/intl.dart';
 class WorkRepository {
   final BaseAPI baseAPI = BaseAPI();
 
-  Future<Work> getWork(int work_id) async {
+  Future<Work?> getWork(int work_id) async {
     print('일깜 ${work_id} 불러오기');
-    final resJson = await baseAPI.basicGet("works/${work_id}");
+    final resJson = await baseAPI.basicGet("works/${work_id}", auth: false);
+    if (resJson == null) {
+      return null;
+    }
     return Work.fromJson(resJson);
   }
 
@@ -50,8 +53,8 @@ class WorkRepository {
   }) async {
     List<Work> works = [];
     final resJson = await baseAPI.basicGet(
-        "works/filters?page=$page&workDate=$workDate&page=$page${workLocationSi != null ? "&workLocationSi=$workLocationSi" : ""}${workLocationDong != null ? "&workLocationDong=$workLocationDong" : ""}${workLocationGu != null ? "&workLocationGu=$workLocationGu" : ""}${workTypeId != null ? "&workTypeId=$workTypeId" : ""}${workTypeDetailId != null ? "&workTypeDetailId=$workTypeDetailId" : ""}"
-        "");
+        "works/filters?page=$page&workDate=$workDate${workLocationSi != null ? "&workLocationSi=$workLocationSi" : ""}${workLocationDong != null ? "&workLocationDong=$workLocationDong" : ""}${workLocationGu != null ? "&workLocationGu=$workLocationGu" : ""}${workTypeId != null ? "&workTypeId=$workTypeId" : ""}${workTypeDetailId != null ? "&workTypeDetailId=$workTypeDetailId" : ""}",
+        auth: false);
     resJson['content'].forEach((v) {
       works.add(new Work.fromJson(v));
     });
@@ -59,24 +62,6 @@ class WorkRepository {
     return {"works": works, "last": resJson['last']};
   }
 
-  // Future<List<Work>> getRecentWorks({
-  //   int page = 0,
-  //   String? workLocationSi,
-  //   int? workTypeId,
-  //   int? workTypeDetailId,
-  // }) async {
-  //   print('최근 등록된 일깜 불러오기');
-  //   List<Work> works = [];
-  //   final resJson = await baseAPI.basicGet(
-  //       "works/?page=$page${workTypeId != null ? "&workTypeId=$workTypeId" : ""}${workTypeDetailId != null ? "&workTypeDetailId=$workTypeDetailId" : ""}${workLocationSi != null ? "&workLocationSi=$workLocationSi" : ""}");
-  //   print(resJson);
-  //   resJson.forEach((v) {
-  //     works.add(new Work.fromJson(v));
-  //   });
-
-  //   return works;
-  // }
-  
   Future<List<Work>> getRecentWorks({
     int page = 0,
     String? workLocationSi,
@@ -86,14 +71,9 @@ class WorkRepository {
     print('최근 등록된 일깜 불러오기');
     List<Work> works = [];
     final resJson = await baseAPI.basicGet(
-        "works/?page=$page${workTypeId != null ? "&workTypeId=$workTypeId" : ""}${workTypeDetailId != null ? "&workTypeDetailId=$workTypeDetailId" : ""}${workLocationSi != null ? "&workLocationSi=$workLocationSi" : ""}");
+        "works/?page=$page${workTypeId != null ? "&workTypeId=$workTypeId" : ""}${workTypeDetailId != null ? "&workTypeDetailId=$workTypeDetailId" : ""}${workLocationSi != null ? "&workLocationSi=$workLocationSi" : ""}",
+        auth: false);
     print(resJson);
-
-    // FIX: Add a null check here. If the response is null, return an empty list.
-    if (resJson == null) {
-      return [];
-    }
-    
     resJson.forEach((v) {
       works.add(new Work.fromJson(v));
     });
@@ -114,25 +94,6 @@ class WorkRepository {
     return works;
   }
 
-  // Future<List<WorksSummaryDto>> getWorkCountBetweenRange({
-  //   String? workLocationSi,
-  //   int? workTypeId,
-  //   int? workTypeDetailId,
-  // }) async {
-  //   print('workCount 일깜 ${workTypeId} 불러오기');
-  //   final resJson = await baseAPI.basicGet(
-  //       "works/summary?${workTypeId != null ? "&workTypeId=$workTypeId" : ""}${workTypeDetailId != null ? "&workTypeDetailId=$workTypeDetailId" : ""}${workLocationSi != null ? "&workLocationSi=$workLocationSi" : ""}");
-  //   List<WorksSummaryDto> works = [];
-  //   print(
-  //       "works/summary?${workTypeId != null ? "&workTypeId=$workTypeId" : ""}${workTypeDetailId != null ? "&workTypeDetailId=$workTypeDetailId" : ""}${workLocationSi != null ? "&workLocationSi=$workLocationSi" : ""}");
-  //   resJson.forEach((v) {
-  //     works.add(new WorksSummaryDto.fromJson(v));
-  //   });
-  //   works.sort(
-  //       (a, b) => DateTime.parse(b.date!).compareTo(DateTime.parse(a.date!)));
-
-  //   return works;
-  // }
   Future<List<WorksSummaryDto>> getWorkCountBetweenRange({
     String? workLocationSi,
     int? workTypeId,
@@ -140,16 +101,11 @@ class WorkRepository {
   }) async {
     print('workCount 일깜 ${workTypeId} 불러오기');
     final resJson = await baseAPI.basicGet(
-        "works/summary?${workTypeId != null ? "&workTypeId=$workTypeId" : ""}${workTypeDetailId != null ? "&workTypeDetailId=$workTypeDetailId" : ""}${workLocationSi != null ? "&workLocationSi=$workLocationSi" : ""}");
+        "works/summary?${workTypeId != null ? "&workTypeId=$workTypeId" : ""}${workTypeDetailId != null ? "&workTypeDetailId=$workTypeDetailId" : ""}${workLocationSi != null ? "&workLocationSi=$workLocationSi" : ""}",
+        auth: false);
     List<WorksSummaryDto> works = [];
     print(
         "works/summary?${workTypeId != null ? "&workTypeId=$workTypeId" : ""}${workTypeDetailId != null ? "&workTypeDetailId=$workTypeDetailId" : ""}${workLocationSi != null ? "&workLocationSi=$workLocationSi" : ""}");
-
-    // FIX: Add a null check here.
-    if (resJson == null) {
-      return [];
-    }
-
     resJson.forEach((v) {
       works.add(new WorksSummaryDto.fromJson(v));
     });
@@ -166,7 +122,8 @@ class WorkRepository {
       required DateTime month}) async {
     print('workCount 일깜 ${workTypeId} 불러오기');
     final resJson = await baseAPI.basicGet(
-        "works/summary/monthly?${workTypeId != null ? "&workTypeId=$workTypeId" : ""}${workTypeDetailId != null ? "&workTypeDetailId=$workTypeDetailId" : ""}${workLocationSi != null ? "&workLocationSi=$workLocationSi" : ""}&month=${DateFormat("yyyy-MM-dd").format(month)}");
+        "works/summary/monthly?${workTypeId != null ? "&workTypeId=$workTypeId" : ""}${workTypeDetailId != null ? "&workTypeDetailId=$workTypeDetailId" : ""}${workLocationSi != null ? "&workLocationSi=$workLocationSi" : ""}&month=${DateFormat("yyyy-MM-dd").format(month)}",
+        auth: false);
     List<WorksSummaryDto> works = [];
     resJson.forEach((v) {
       works.add(new WorksSummaryDto.fromJson(v));
@@ -189,31 +146,11 @@ class WorkRepository {
     return;
   }
 
-  // Future<List<WorkTypes>> getAllWorkType() async {
-  //   print('일깜 유형 불러오기');
-  //   List<WorkTypes> workTypes = [];
-  //   final resJson = await baseAPI.basicGet("works/type");
-  //   // List<WorksSummaryDto> works = [];
-  //   resJson.forEach((v) {
-  //     workTypes.add(new WorkTypes.fromJson(v));
-  //   });
-  //   moveItems(0, 6, workTypes);
-  //   moveItems(8, 6, workTypes);
-  //   moveItems(9, 7, workTypes);
-
-  //   return workTypes;
-  // }
-  
   Future<List<WorkTypes>> getAllWorkType() async {
     print('일깜 유형 불러오기');
     List<WorkTypes> workTypes = [];
-    final resJson = await baseAPI.basicGet("works/type");
-    
-    // FIX: Add a null check here.
-    if (resJson == null) {
-      return [];
-    }
-
+    final resJson = await baseAPI.basicGet("works/type", auth: false);
+    // List<WorksSummaryDto> works = [];
     resJson.forEach((v) {
       workTypes.add(new WorkTypes.fromJson(v));
     });
@@ -223,7 +160,6 @@ class WorkRepository {
 
     return workTypes;
   }
-
   void moveItems(int from, int to, List<WorkTypes> workTypes) {
     var item = workTypes.removeAt(from); // 기존 위치에서 제거
     workTypes.insert(to, item); // 새로운 위치에 삽입

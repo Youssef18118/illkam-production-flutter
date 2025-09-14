@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:ilkkam/app.dart';
 import 'package:ilkkam/pages/main/WorkListPage.dart';
-import 'package:ilkkam/providers/users/UserController.dart';
 import 'package:ilkkam/providers/works/WorkController.dart';
 import 'package:ilkkam/providers/works/dto/WorksSummaryDto.dart';
 import 'package:ilkkam/widgets/DayCountWidget.dart';
 import 'package:provider/provider.dart';
-import 'package:ilkkam/pages/register/LandingPage.dart' as RegisterLandingPage;
 
 class WorkDayCountWidget extends StatelessWidget {
   final bool isLandingPage;
@@ -16,9 +14,7 @@ class WorkDayCountWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final work = Provider.of<WorkController>(context);
-    final user = Provider.of<UserController>(context, listen: false);
-    List<WorksSummaryDto> summaries =
-        isLandingPage ? work.workSummary : work.workListWorkSummary;
+    List<WorksSummaryDto> summaries = isLandingPage ?  work.workSummary : work.workListWorkSummary;
 
     return Container(
       height: 75,
@@ -34,15 +30,8 @@ class WorkDayCountWidget extends StatelessWidget {
                 time: date,
                 onTap: () async {
                   if (isLandingPage) {
-                    if (user.isLogIn) {
-                      work.changeMonth(
-                          DateTime.parse(dto.date ?? '2024-10-22'),
-                          fromDayCount: true);
-                      Navigator.pushNamed(context, WorkListPage.routeName);
-                    } else {
-                      Navigator.pushNamed(
-                          context, RegisterLandingPage.LandingPage.routeName);
-                    }
+                    work.changeMonth(DateTime.parse(dto.date ?? '2024-10-22'),fromDayCount: true);
+                    Navigator.pushNamed(context, WorkListPage.routeName);
                   } else {
                     work.selectWorkDate(
                         DateTime.parse(dto.date ?? '2024-10-22'));
