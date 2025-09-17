@@ -128,9 +128,17 @@ class _UploadWorkPageState extends State<UploadWorkPage> {
     final work = Provider.of<WorkController>(context);
     final now = DateTime.now();
 
-    return SingleChildScrollView(
-      child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      resizeToAvoidBottomInset: true,
+      body: SingleChildScrollView(
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+          left: 20,
+          right: 20,
+          top: 20,
+        ),
         child: Form(
             key: _formKey, // Form에 key 추가
             child: Column(

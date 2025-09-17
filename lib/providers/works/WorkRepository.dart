@@ -216,9 +216,8 @@ class WorkRepository {
   }
 
   Future deleteWork(int workId) async {
-    print('Deleting work with id: $workId');
-    final response = await baseAPI.basicDelete("works/$workId");
-    print('Delete response: $response');
+    print(workId);
+    await baseAPI.basicDelete("works/$workId");
     return;
   }
 

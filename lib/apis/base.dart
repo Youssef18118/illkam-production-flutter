@@ -77,8 +77,7 @@ class BaseAPI {
 
     try {
       final response = await http.delete(Uri.parse(url), headers: headers);
-      print('Status Code: ${response.statusCode}');
-      print('Response Body: ${response.body}');
+
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         return data;
@@ -86,7 +85,6 @@ class BaseAPI {
         return null;
       }
     } catch (e) {
-      print('Error in basicDelete: $e');
       return null;
     }
   }
