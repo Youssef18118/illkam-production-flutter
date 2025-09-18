@@ -11,6 +11,7 @@ import 'package:ilkkam/pages/register/LandingPage.dart';
 import 'package:ilkkam/providers/TabController.dart';
 import 'package:ilkkam/providers/chats/ChatsController.dart';
 import 'package:ilkkam/providers/users/UserController.dart';
+import 'package:ilkkam/utils/version_checker.dart';
 import 'package:ilkkam/widgets/IKBtmBar.dart';
 import 'package:provider/provider.dart';
 
@@ -32,6 +33,12 @@ class TabContainer extends StatefulWidget {
 
 class _TabContainerState extends State<TabContainer> {
   int _selectedIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    VersionChecker.checkVersion(context);
+  }
 
   @override
   Widget build(BuildContext context) {

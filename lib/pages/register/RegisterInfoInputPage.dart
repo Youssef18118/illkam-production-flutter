@@ -175,7 +175,7 @@ class _RegisterInfoInputPageState extends State<RegisterInfoInputPage> {
                   height: 20,
                 ),
                 ImagePickerWidget(
-                  label: "사업자 등록증 또는 명함 (필수)",
+                  label: "프로필 사진 (필수)",
                   length: 1,
                   required: true,
                   hasError: _imagePickerHasError,

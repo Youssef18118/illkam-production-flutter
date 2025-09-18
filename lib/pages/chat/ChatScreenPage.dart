@@ -97,47 +97,51 @@ class _ChatScreenState extends State<ChatScreen> {
             stompClient.subscribe(
               destination: '/sub/channel/${chat?.id}',
               callback: (frame) {
-                print("sub arrived");
-                Map<String, dynamic> obj = json.decode(frame.body!);
-                ChatMessage message = ChatMessage(
-                    createdAt: obj['createdAt'],
-                    roomId: obj['roomId'],
-                    authorId: obj['authorId'],
-                    readCount: int.parse(obj['authorId']) != myId ? 2 : 1,
-                    message: obj['message']);
-            Provider.of<ChatsController>(context, listen: false)
-                    .receiveMessage(message, myId);
-                
-                Provider.of<ChatsController>(context, listen: false)
-                    .readAllChatsLocal(message.roomId ?? '');
-                // 채팅 도중 상대방 채팅 도착 시
-                if (obj["authorId"] != myId.toString()) {
-                  stompClient.send(
-                      destination: '/pub/message/read', // 전송할 destination
-                      body: jsonEncode(
-                          ReadMessage(roomId: message.roomId, userId: myId)
-                              .toJson())
-                    // 메시지의 내용
-                  //   읽음 처리
-                  );
-                } else {
+                if (mounted) {
+                  print("sub arrived");
+                  Map<String, dynamic> obj = json.decode(frame.body!);
+                  ChatMessage message = ChatMessage(
+                      createdAt: obj['createdAt'],
+                      roomId: obj['roomId'],
+                      authorId: obj['authorId'],
+                      readCount: int.parse(obj['authorId']) != myId ? 2 : 1,
+                      message: obj['message']);
                   Provider.of<ChatsController>(context, listen: false)
-                      .readByEnteringChat(obj['roomId']);
+                      .receiveMessage(message, myId);
+
+                  Provider.of<ChatsController>(context, listen: false)
+                      .readAllChatsLocal(message.roomId ?? '');
+                  // 채팅 도중 상대방 채팅 도착 시
+                  if (obj["authorId"] != myId.toString()) {
+                    stompClient.send(
+                        destination: '/pub/message/read', // 전송할 destination
+                        body: jsonEncode(
+                            ReadMessage(roomId: message.roomId, userId: myId)
+                                .toJson())
+                        // 메시지의 내용
+                        //   읽음 처리
+                        );
+                  } else {
+                    Provider.of<ChatsController>(context, listen: false)
+                        .readByEnteringChat(obj['roomId']);
+                  }
+                  // _scrollToBottom();
+                  // 메시지 수신 시 수행할 작업
                 }
-                // _scrollToBottom();
-                // 메시지 수신 시 수행할 작업
               },
             );
             // 읽음 상태에 대한 알림 구독
             stompClient.subscribe(
               destination: '/sub/channel/${chat?.id}/read',
               callback: (frame) {
-                final data = jsonDecode(frame.body!);
-                final messageId = data['messageId'];
-                final userId = data['userId'];
-                // UI에서 읽음 상태를 업데이트
-                Provider.of<ChatsController>(context, listen: false)
-                    .updateMessageAsRead(userId);
+                if (mounted) {
+                  final data = jsonDecode(frame.body!);
+                  final messageId = data['messageId'];
+                  final userId = data['userId'];
+                  // UI에서 읽음 상태를 업데이트
+                  Provider.of<ChatsController>(context, listen: false)
+                      .updateMessageAsRead(userId);
+                }
               },
             );
           },
@@ -200,6 +204,8 @@ class _ChatScreenState extends State<ChatScreen> {
                 workDate: chat.workDate,
                 address: chat.address,
                 workId: chat.workId),
+            // 정보 배너 추가
+            _infoBanner(),
             Expanded(
               child: Container(
                 alignment: Alignment.topCenter,
@@ -503,3 +509,51 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 }
+
+  // 채팅 상단에 노출되는 안내 배너 위젯
+  Widget _infoBanner() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF6F4EF), // 부드러운 베이지 톤 배경색
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 아이콘 영역
+          Container(
+            width: 30,
+            height: 30,
+            alignment: Alignment.center,
+            decoration: const BoxDecoration(
+              color: Colors.green, // 기존 앱에서 사용하던 포인트 컬러
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.info_outline_rounded,
+              size: 20,
+              color: Colors.white,
+            ),
+          ),
+          const SizedBox(width: 5),
+          // 안내 문구
+          const Expanded(
+            child: Center(
+              child: Text(
+                "고객정보는 소중합니다.\n서비스 관련 대화 시,\n반드시 고객의 동의를 먼저 확인해주세요",
+                style: TextStyle(
+                  color: Color(0xFF545454),
+                  fontSize: 16,
+                  fontFamily: 'Pretendard',
+                  fontWeight: FontWeight.w400,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
